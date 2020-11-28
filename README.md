@@ -18,7 +18,7 @@ pip install -r requirements_dev.txt
 You can use the following command to typecheck your code if you are using types (Recommended).
 
 ~~~bash
-mypy src/
+mypy connect4/
 ~~~
 
 ## Start Server
