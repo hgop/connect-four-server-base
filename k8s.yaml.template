@@ -34,7 +34,7 @@ kind: Deployment
 metadata:
   name: connect-four-server-{{ENVIRONMENT}}
 spec:
-  replicas: 5
+  replicas: 1
   selector:
     matchLabels:
       app: connect-four-server-{{ENVIRONMENT}}
