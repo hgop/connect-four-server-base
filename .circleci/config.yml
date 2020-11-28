@@ -59,10 +59,7 @@ jobs:
 workflows:
   build_test_deploy:
     jobs:
-      - lint
-      - build:
-          requires:
-            - lint
+      - build
       - publish:
           requires:
             - build
