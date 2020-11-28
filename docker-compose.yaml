@@ -14,7 +14,7 @@ services:
     ports:
       - "5000:5000"
     links:
-      - game-server-db
+      - database
 
   database:
     image: postgres:12
