@@ -15,13 +15,6 @@ executors:
       - image: circleci/buildpack-deps:stretch
 
 jobs:
-  lint:
-    executor: python
-    steps:
-      - checkout
-      - run: pip install -r requirements.txt -r requirements_dev.txt
-      - run: mypy connect4/
-
   build:
     executor: docker-publisher
     steps:
