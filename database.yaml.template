@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: connect-four-database-{{ENVIRONMENT}}
+  labels:
+    app: connect-four-database-{{ENVIRONMENT}}
+data:
+  POSTGRES_DB: connect-four
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: connect-four-database-{{ENVIRONMENT}}
+  labels:
+    app: connect-four-database-{{ENVIRONMENT}}
+spec:
+  ports:
+  - port: 5432
+    name: connect-four-database-{{ENVIRONMENT}}
+  type: NodePort 
+  selector:
+    app: connect-four-database-{{ENVIRONMENT}}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: connect-four-database-{{ENVIRONMENT}}
+  labels:
+    app: connect-four-database-{{ENVIRONMENT}}
+spec:
+  serviceName: "connect-four-database-{{ENVIRONMENT}}"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: connect-four-database-{{ENVIRONMENT}}
+  template:
+    metadata:
+      labels:
+        app: connect-four-database-{{ENVIRONMENT}}
+    spec:
+      containers:
+      - name: connect-four-database-{{ENVIRONMENT}}
+        image: postgres:12
+        envFrom:
+        - configMapRef:
+            name: connect-four-database-{{ENVIRONMENT}}
+        - secretRef:
+            name: connect-four-database-{{ENVIRONMENT}}
+        ports:
+        - containerPort: 5432
+          name: postgresdb
+        volumeMounts:
+        - name: connect-four-database-{{ENVIRONMENT}}
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: connect-four-database-{{ENVIRONMENT}}
+        persistentVolumeClaim:
+          claimName: connect-four-database-{{ENVIRONMENT}}
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: connect-four-database-{{ENVIRONMENT}}
+  labels:
+    app: connect-four-database-{{ENVIRONMENT}}
+    type: local
+spec:
+  storageClassName: microk8s-hostpath
+  persistentVolumeReclaimPolicy: Recycle
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/var/{{ENVIRONMENT}}"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: connect-four-database-{{ENVIRONMENT}}
+  labels:
+    app: connect-four-database-{{ENVIRONMENT}}
+spec:
+  storageClassName: microk8s-hostpath
+  capacity:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: microk8s-hostpath
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: microk8s.io/hostpath
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: connect-four-database-{{ENVIRONMENT}}
+  labels:
+    app: connect-four-database-{{ENVIRONMENT}}
+data:
+  POSTGRES_USER: "{{DATABASE_USERNAME}}"
+  POSTGRES_PASSWORD: "{{DATABASE_PASSWORD}}"

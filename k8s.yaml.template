@@ -1,0 +1,85 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: connect-four-server-{{ENVIRONMENT}}
+spec:
+  rules:
+  - host: "{{SUBDOMAIN}}-{{ENVIRONMENT}}.dreamteam.hgopteam.com"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: connect-four-server-{{ENVIRONMENT}}
+            port:
+              number: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: connect-four-server-{{ENVIRONMENT}}
+  labels:
+    app: connect-four-server-{{ENVIRONMENT}}
+spec:
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 3000
+  selector:
+    app: connect-four-server-{{ENVIRONMENT}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: connect-four-server-{{ENVIRONMENT}}
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: connect-four-server-{{ENVIRONMENT}}
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: connect-four-server-{{ENVIRONMENT}}
+        version: v1
+    spec:
+      containers:
+      - image: username/connect-four-server:{{IMAGE_TAG}}
+        imagePullPolicy: Always
+        name: connect-four-server
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - configMapRef:
+            name: connect-four-server-{{ENVIRONMENT}}
+        - secretRef:
+            name: connect-four-server-{{ENVIRONMENT}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: connect-four-server-{{ENVIRONMENT}}
+  labels:
+    app: connect-four-server-{{ENVIRONMENT}}
+data:
+  HOST: "0.0.0.0"
+  PORT: "3000"
+  DEBUG: "False"
+  TESTING: "False"
+  DATABASE_NAME: "connect-four"
+  DATABASE_HOST: "connect-four-database-{{ENVIRONMENT}}"
+  DATABASE_PORT: "5432"
+  CSRF_ENABLED: "True"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: connect-four-server-{{ENVIRONMENT}}
+  labels:
+    app: connect-four-server-{{ENVIRONMENT}}
+data:
+  DATABASE_USERNAME: "{{DATABASE_USERNAME}}"
+  DATABASE_PASSWORD: "{{DATABASE_PASSWORD}}"
+  SECRET_KEY: "{{SECRET_KEY}}"
