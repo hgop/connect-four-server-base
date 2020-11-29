@@ -6,6 +6,9 @@ Create a virtual python environment using venv, if you are using VSCode with the
 there should be a pop up asking you if you want to select this new venv as your environment. If you
 do VSCode will source activation file automatically for each new terminal within VSCode.
 
+## Prerequisites
+Make sure you have Python 3 installed. You might need to run your commands with `python3` if you don't have an alias.
+
 ~~~bash
 python -m venv .venv
 source .venv/bin/activate # Skip if using VSCode with extension, open new integrated terminal in VSCode.
