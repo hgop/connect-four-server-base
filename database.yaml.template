@@ -68,7 +68,7 @@ spec:
   storageClassName: microk8s-hostpath
   persistentVolumeReclaimPolicy: Recycle
   capacity:
-    storage: 5Gi
+    storage: 250Mi
   accessModes:
     - ReadWriteOnce
   hostPath:
@@ -87,7 +87,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
+      storage: 250Mi
 ---
 kind: StorageClass
 apiVersion: storage.k8s.io/v1

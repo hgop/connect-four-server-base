@@ -42,34 +42,82 @@ def is_victory_move(game: models.Game, x: int, y: int, player: models.Player) ->
 def is_victory_move_horizontal(
     game: models.Game, x: int, y: int, player: models.Player
 ) -> bool:
-    # TODO
-    pass
+    connected = 0
+
+    for i in range(-3, 4):
+        if get_tile(game, x + i, y) == player:
+            connected += 1
+        else:
+            connected = 0
+
+        if connected >= 4:
+            return True
+
+    return False
 
 
 def is_victory_move_vertical(
     game: models.Game, x: int, y: int, player: models.Player
 ) -> bool:
-    # TODO
-    pass
+    connected = 0
+
+    for i in range(-3, 4):
+        if get_tile(game, x, y + i) == player:
+            connected += 1
+        else:
+            connected = 0
+
+        if connected >= 4:
+            return True
+
+    return False
 
 
 def is_victory_move_diagonal(
     game: models.Game, x: int, y: int, player: models.Player
 ) -> bool:
-    # TODO
-    pass
+    connected = 0
+
+    # Diagonal NorthEast
+    for i in range(-3, 4):
+        if get_tile(game, x + i, y - i) == player:
+            connected += 1
+        else:
+            connected = 0
+
+        if connected >= 4:
+            return True
+
+    connected = 0
+
+    # Diagonal SouthEast
+    for i in range(-3, 4):
+        if get_tile(game, x + i, y + i) == player:
+            connected += 1
+        else:
+            connected = 0
+
+        if connected >= 4:
+            return True
+
+    return False
 
 
 def get_tile(game: models.Game, x: int, y: int) -> models.Tile:
-    # TODO
-    pass
+    if x < 0 or 7 <= x:
+        return models.Tile.EMPTY
+    if y < 0 or 6 <= y:
+        return models.Tile.EMPTY
+    return game.board[x][y]
 
 
 def is_board_full(game: models.Game) -> bool:
-    # TODO
-    pass
+    for column in game.board:
+        for tile in column:
+            if tile == models.Tile.EMPTY:
+                return False
+    return True
 
 
 def is_column_full(game: models.Game, column: int) -> bool:
-    # TODO
-    pass
+    return game.board[column][5] != models.Tile.EMPTY

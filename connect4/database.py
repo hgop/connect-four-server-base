@@ -5,7 +5,6 @@ import psycopg2 # type: ignore
 import sys
 import time
 
-
 def get_connection():
     return psycopg2.connect(
         user=config.DATABASE_USERNAME,

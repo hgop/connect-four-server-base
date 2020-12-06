@@ -22,6 +22,57 @@ jobs:
       - run: pip install -r requirements.txt -r requirements_dev.txt
       - run: mypy connect4/
 
+  unit_test:
+    executor: python
+    steps:
+      - checkout
+      - run: pip install -r requirements.txt -r requirements_test.txt
+      - run: pytest --cov=connect4 tests/unit
+
+  acceptance_deploy:
+    docker:
+      - image: circleci/buildpack-deps:stretch
+    steps:
+      - checkout
+      - kubernetes/install-kubectl
+      - kubernetes/install-kubeconfig:
+          kubeconfig: KUBECONFIG_DATA
+      - run: kubectl delete namespace acceptance || exit 0
+      - run: kubectl create namespace acceptance
+      - run: ./scripts/create_database.sh "acceptance" "acceptance"
+      - run: ./scripts/deploy.sh "acceptance" "connect-four-server" "acceptance" "${CIRCLE_SHA1}"
+
+  acceptance_test:
+    executor: python
+    steps:
+      - checkout
+      - run: pip install -r requirements_test.txt
+      - run: pytest tests/acceptance
+    environment:
+      API_URL: "http://connect-four-server-acceptance.dreamteam.hgopteam.com"
+
+  capacity_deploy:
+    docker:
+      - image: circleci/buildpack-deps:stretch
+    steps:
+      - checkout
+      - kubernetes/install-kubectl
+      - kubernetes/install-kubeconfig:
+          kubeconfig: KUBECONFIG_DATA
+      - run: kubectl delete namespace capacity || exit 0
+      - run: kubectl create namespace capacity
+      - run: ./scripts/create_database.sh "capacity" "capacity"
+      - run: ./scripts/deploy.sh "capacity" "connect-four-server" "capacity" "${CIRCLE_SHA1}"
+
+  capacity_test:
+    executor: python
+    steps:
+      - checkout
+      - run: pip install -r requirements_test.txt
+      - run: pytest tests/capacity
+    environment:
+      API_URL: "http://connect-four-server-capacity.dreamteam.hgopteam.com"
+
   build:
     executor: docker-publisher
     steps:
@@ -67,15 +118,30 @@ workflows:
   build_test_deploy:
     jobs:
       - lint
-      - build:
+      - unit_test:
           requires:
             - lint
+      - build:
+          requires:
+            - unit_test
       - publish:
           requires:
             - build
-      - deploy:
+      - acceptance_deploy:
           requires:
             - publish
+      - acceptance_test:
+          requires:
+            - acceptance_deploy
+      - capacity_deploy:
+          requires:
+            - acceptance_test
+      - capacity_test:
+          requires:
+            - capacity_deploy
+      - deploy:
+          requires:
+            - capacity_test
           filters:
             branches:
               only:
