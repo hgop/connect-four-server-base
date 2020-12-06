@@ -4,7 +4,7 @@ metadata:
   name: connect-four-server-{{ENVIRONMENT}}
 spec:
   rules:
-  - host: "{{SUBDOMAIN}}-{{ENVIRONMENT}}.dreamteam.hgopteam.com"
+  - host: "{{SUBDOMAIN}}-{{ENVIRONMENT}}.[TEAM_NAME].hgopteam.com"
     http:
       paths:
       - path: /
@@ -46,7 +46,7 @@ spec:
         version: v1
     spec:
       containers:
-      - image: username/connect-four-server:{{IMAGE_TAG}}
+      - image: [DOCKER_USERNAME]/connect-four-server:{{IMAGE_TAG}}
         imagePullPolicy: Always
         name: connect-four-server
         ports:
